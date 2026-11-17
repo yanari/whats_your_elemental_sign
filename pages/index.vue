@@ -4,6 +4,11 @@ const { data: meta } = await useFetch('/api/meta', {
     query: route.query
 });
 
+// absolute URLs on the domain being served: crawlers follow og:url as the canonical page
+const { origin } = useRequestURL();
+const pageUrl = computed(() => route.query.els ? `${origin}/?els=${route.query.els}` : `${origin}/`);
+const ogImage = `${origin}/og-image.jpg`;
+
 useHead({
     htmlAttrs: { lang: 'en' },
     link: [
@@ -24,10 +29,17 @@ useSeoMeta({
     ogDescription: () => meta.value.ogDescription,
     twitterDescription: () => meta.value.ogDescription,
 
-    ogImage: () => meta.value.ogImage,
-    twitterImage: () => meta.value.ogImage,
+    ogImage,
+    ogImageWidth: 1200,
+    ogImageHeight: 630,
+    ogImageType: 'image/jpeg',
+    ogImageAlt: 'Moon phases over a starry sky',
+    twitterImage: ogImage,
+    twitterImageAlt: 'Moon phases over a starry sky',
 
-    ogUrl: () => meta.value.ogUrl,
+    ogUrl: pageUrl,
+    ogSiteName: () => meta.value.ogSiteName,
+    ogLocale: () => meta.value.ogLocale,
     ogType: () => meta.value.ogType,
     twitterCard: () => meta.value.twitterCard,
 })

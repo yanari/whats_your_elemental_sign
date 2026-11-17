@@ -21,15 +21,10 @@ export default defineEventHandler(async (event) => {
         ogTitle: title,
         ogDescription: description,
         ogType: 'website',
-        ogImage:
-            'https://wallpapers.com/images/hd/aesthetic-astrology-dbat1z9z5gyspsp4.jpg',
-        ogUrl: 'https://calculate-astrology.netlify.app',
         twitterCard: 'summary_large_image',
 
         twitterTitle: title,
         twitterDescription: description,
-        twitterImage:
-            'https://wallpapers.com/images/hd/aesthetic-astrology-dbat1z9z5gyspsp4.jpg',
         ogLocale: 'en_US',
         ogSiteName: "What's Your Elemental Sign?",
     }
