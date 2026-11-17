@@ -6,6 +6,8 @@ import 'v-calendar/dist/style.css'
 const toast = useToast()
 const router = useRouter();
 const astros = useAstrosStore();
+// remembers which result belongs to this browser, so /result can tell owner from visitor
+const ownResult = useCookie('own-result', { maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' });
 
 const state = reactive({
     date: new Date('2000-01-01T12:00:00'),
@@ -33,9 +35,12 @@ async function onSubmit(event) {
             }
         });
         
-        astros.set(response);
+        // older API versions don't send `p`, so derive it from the calculation
+        const p = response.p || encodePoints(response.calculation);
+        astros.set({ ...response, p });
+        ownResult.value = p;
 
-        router.push(`/result?els=${response.params}`).then(() => {
+        router.push(`/result?p=${p}`).then(() => {
             isLoading.value = false;
         });
     

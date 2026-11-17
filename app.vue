@@ -1,6 +1,11 @@
 <script setup>
 import 'assets/main.css';
 
+useHead({
+    htmlAttrs: { lang: 'en' },
+    link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
+});
+
 const isBgLoaded = ref(false);
 
 function setIsBgLoaded() {
