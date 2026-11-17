@@ -36,11 +36,11 @@ const options = reactive({
 
 onMounted(() => {
     chartData.value = {
-        labels: labels,
+        labels: labels.value,
         hoverOffset: 4,
         datasets: [{
-            data: elementsData,
-            backgroundColor: colors
+            data: elementsData.value,
+            backgroundColor: colors.value
         }],
     }
 })

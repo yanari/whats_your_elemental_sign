@@ -17,5 +17,8 @@ export const useAstrosStore = defineStore('astros', {
             this.data = data;
         }
     },
-    persist: true
+    // cookies (the default) cap at 4KB and the API response is ~5KB
+    persist: {
+        storage: piniaPluginPersistedstate.localStorage(),
+    },
 })

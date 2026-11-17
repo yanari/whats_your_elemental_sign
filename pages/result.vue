@@ -7,7 +7,7 @@ const { data } = useAstrosStore();
 const route = useRoute();
 const params = ref(route.query.els);
 
-const { host } = useRequestURL();
+const { origin } = useRequestURL();
 
 const zodiacSigns = ref(data.zodiacSigns);
 
@@ -21,11 +21,12 @@ const elements = computed(() => data.calculation);
 // Share
 const ogTitle = computed(() => data.ogTitle + '!');
 
-const fullUrl = computed(() => 'http://' + host.replace('/', '') + '?els=' + params.value);
+const fullUrl = computed(() => `${origin}/?els=${params.value}`);
+const shareText = computed(() => `${ogTitle.value} Find out yours on`);
 
-const shareTwitter = computed(() => `http://twitter.com/share?text=${ogTitle.value} Find out yours on&url=${fullUrl.value}`);
-const shareTelegram = computed(() => `https://t.me/share/url?url=${fullUrl.value}&text=${ogTitle.value} Find out yours on`);
-const shareFacebook = computed(() => `https://www.facebook.com/dialog/share?app_id=541350505600565&display=popup&href=${fullUrl.value}&redirect_uri=${fullUrl.value}`);
+const shareTwitter = computed(() => `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText.value)}&url=${encodeURIComponent(fullUrl.value)}`);
+const shareTelegram = computed(() => `https://t.me/share/url?url=${encodeURIComponent(fullUrl.value)}&text=${encodeURIComponent(shareText.value)}`);
+const shareFacebook = computed(() => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl.value)}`);
 
 </script>
 <template>

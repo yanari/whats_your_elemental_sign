@@ -1,7 +1,7 @@
-export default defineNuxtRouteMiddleware((to, from) => {
-    const { hasData } = useAstrosStore();
+export default defineNuxtRouteMiddleware(() => {
+    const astros = useAstrosStore();
 
-    if (hasData === false) {
+    if (!astros.hasData) {
       return navigateTo('/')
     }
   })

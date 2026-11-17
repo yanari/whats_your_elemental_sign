@@ -1,64 +1,50 @@
 <script setup>
-import { Loader } from '@googlemaps/js-api-loader';
-
 const model = defineModel({ lat: null, lng: null });
 
-const input = ref('');
-const inputRef = useTemplateRef('inputRef');
+const selected = ref(null);
 
-const completer = ref(null);
-const googleApi = ref(null);
-
-onMounted(() => setupGoogleMaps());
-
-const setupGoogleMaps = async () => {
-    const config = useRuntimeConfig();
-    const loader = new Loader({
-        apiKey: config.public.googleMapsApiKey,
-        version: 'weekly',
-        libraries: ['places']
-    });
-
-    googleApi.value = await loader.load();
-}
-
-const autoCompleteResult = () => {
-    const options = {
-        fields: ['geometry', 'icon', 'name'],
-        types: ['(regions)'],
-    };
-    completer.value = new googleApi.value.maps.places.Autocomplete(inputRef?.value, options);
-}
-
-watch(input, async (value, oldValue) => {
-    if (value.length > 2 && value != oldValue) {
-        autoCompleteResult();
+const search = async (query) => {
+    if (!query || query.length < 2) {
+        return [];
     }
-});
 
-watch(completer, autocomplete => {
-    autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-
-        const { lat, lng } = place.geometry.location;
-
-        model.value = { lat: lat(), lng: lng() };
+    const { results } = await $fetch('https://geocoding-api.open-meteo.com/v1/search', {
+        query: { name: query, count: 10, language: 'en' }
     });
+
+    return (results || []).map(place => ({
+        id: place.id,
+        label: [place.name, [place.admin1, place.country].filter(Boolean).join(', ')].filter(Boolean).join(' — '),
+        lat: place.latitude,
+        lng: place.longitude,
+        timezone: place.timezone,
+    }));
+}
+
+watch(selected, place => {
+    model.value = place
+        ? { lat: place.lat, lng: place.lng, timezone: place.timezone }
+        : {};
 });
 
 </script>
 <template>
-    <div class="relative">
-        <UFormGroup
-            size="xl"
-            label="Location"
-            description="Where were you born?"
-            required
-        >
-            <UInput icon="i-heroicons-globe-americas-solid" />
-            <input class="text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 absolute bg-transparent h-11 w-11/12 left-12 outline-none top-0" v-model="input" ref="inputRef"/>
-        </UFormGroup>
-    </div>
+    <UFormGroup
+        size="xl"
+        label="Location"
+        description="Where were you born?"
+        required
+    >
+        <UInputMenu
+            v-model="selected"
+            :search="search"
+            :debounce="300"
+            by="id"
+            option-attribute="label"
+            icon="i-heroicons-globe-americas-solid"
+            placeholder="Type your city"
+        />
+    </UFormGroup>
 </template>
 
 <style></style>

@@ -1,14 +1,32 @@
+import { zonedTimeToUtc } from '~/utils/zonedTimeToUtc'
+
 export default defineEventHandler(async (event) => {
     const body = await readBody(event)
+    const latLng = body?.latLng || {}
 
-    const BACKEND_URL = process.env.BACKEND_URL;
+    if (latLng.lat == null || latLng.lng == null || !(body.localTime || body.date)) {
+        throw createError({ statusCode: 400, statusMessage: 'Missing date or location' })
+    }
 
-    const response = await $fetch(`${BACKEND_URL}/horoscope`, {
+    const { backendUrl } = useRuntimeConfig(event)
+
+    if (!backendUrl) {
+        throw createError({ statusCode: 500, statusMessage: 'NUXT_BACKEND_URL is not configured' })
+    }
+
+    // birth time is the wall clock of the birth city, not of the user's browser
+    const time = latLng.timezone && body.localTime
+      ? zonedTimeToUtc(body.localTime, latLng.timezone).toISOString()
+      : body.date
+
+    const response = await $fetch(`${backendUrl}/horoscope`, {
       query: {
-        time: body.date,
-        latitude: body.latLng.lat,
-        longitude: body.latLng.lng,
-      }
+        time,
+        latitude: latLng.lat,
+        longitude: latLng.lng,
+      },
+      // the Render free tier can take ~60s to wake up
+      timeout: 90000,
     })
 
     return { response }

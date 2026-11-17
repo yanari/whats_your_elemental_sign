@@ -7,10 +7,10 @@ A fun and mystical Nuxt 3 app that reveals the dominant elemental forces in your
 - 🔥 Calculates your **dominant element** using birth date and location
 - 📊 Displays your **elemental distribution** in a beautiful chart
 - 🧙‍♀️ Offers **personalized descriptions** based on your chart
-- 🌍 Integrates **Google Maps API** for easy city selection
+- 🌍 City search powered by the free **Open-Meteo Geocoding API** (no API key needed), with the birth time converted using the city's own timezone
 - 📅 Uses **v-calendar** for intuitive date picking
 - 📣 Built-in **social share support** (OpenGraph & SEO optimized)
-- 💾 Persistent user state using **Pinia + plugin**
+- 💾 Results persisted in `localStorage` with **Pinia + pinia-plugin-persistedstate**, so refreshing the result page keeps your chart
 - 🌈 Stylish UI with **TailwindCSS + Nuxt UI**
 - 📱 Fully responsive design
 
@@ -21,7 +21,7 @@ A fun and mystical Nuxt 3 app that reveals the dominant elemental forces in your
 - **Pinia**
 - **TailwindCSS**
 - **Chart.js** (via vue-chartjs)
-- **Google Maps JS API**
+- **Open-Meteo Geocoding API**
 - **v-calendar**
 - **date-fns**
 - **Nuxt UI + Social Share + SEO Meta Tags**
@@ -40,12 +40,33 @@ Using chart.js and a combination of astrological logic, the app interprets your 
 - 🛠 Admin panel for managing descriptions/content
 - 🌐 i18n (multilingual support)
 
-## 📸 Preview
+## 🏗 Architecture
 
-![App Preview](./screenshot.png)
+- **Frontend (this repo):** Nuxt 3, deployed on Vercel. The Nitro routes `server/api/submit.ts` and `server/api/meta.ts` proxy the backend and build the share metadata.
+- **Backend:** [astrology-api](https://github.com/yanari/astrology-api), an Express + Swiss Ephemeris service deployed on Google Cloud Run. It calculates the planet positions and the element points.
+
+## ⚙️ Environment Variables
+
+| Variable | Description |
+| --- | --- |
+| `NUXT_BACKEND_URL` | Base URL of the astrology-api (e.g. `https://astrology-api-xxxx.us-central1.run.app`) |
+
+Create a `.env` file in the project root. To use a local backend, start it on another port (`PORT=3001 npm start` inside `astrology-api`), since Nuxt already uses 3000:
+
+```bash
+NUXT_BACKEND_URL=http://localhost:3001
+```
 
 ## 🚀 Run Locally
 
 ```bash
-npm install
-npm run dev
+yarn install
+yarn dev
+```
+
+Build for production:
+
+```bash
+yarn build
+node .output/server/index.mjs
+```

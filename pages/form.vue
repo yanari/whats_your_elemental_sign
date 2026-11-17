@@ -23,9 +23,14 @@ const isDisabled = computed(() => {
 async function onSubmit(event) {
     try {
         isLoading.value = true;
+        const { date, latLng } = event.data;
         const { response } = await $fetch('/api/submit', {
             method: 'POST',
-            body: event.data
+            body: {
+                date,
+                localTime: format(date, "yyyy-MM-dd'T'HH:mm:ss"),
+                latLng,
+            }
         });
         
         astros.set(response);
